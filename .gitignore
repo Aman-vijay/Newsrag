@@ -1,9 +1,20 @@
 # Dependencies
 node_modules/
+**/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# PNPM specific files
+.pnpm/
+**/.pnpm/
+.modules.yaml
+**/.modules.yaml
+.pnpm-workspace-state.json
+**/.pnpm-workspace-state.json
+pnpm-lock.yaml
+**/pnpm-lock.yaml
 
 # Production builds
 dist/
