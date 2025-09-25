@@ -1,7 +1,7 @@
 
 import { ingestNewsPipeline, searchNews } from "../services/newsService.js";
 
-export async function initNews(req, res) {
+export const ingestNews = async (req, res) => {
   try {
     await ingestNewsPipeline();
     res.json({ message: "News ingested & stored in Qdrant ✅" });
@@ -10,7 +10,7 @@ export async function initNews(req, res) {
   }
 }
 
-export async function queryNews(req, res) {
+export const queryNews = async (req, res) => {
   try {
     const { query } = req.body;
     const results = await searchNews(query);
