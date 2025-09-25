@@ -1,9 +1,10 @@
 
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const client = new OpenAI();
+{
+  // apiKey: process.env.OPENAI_API_KEY,
+}
 
 const SYSTEM_PROMPT = `You are a helpful news assistant that provides concise and accurate answers based on the provided news context. If the context does not contain relevant information, respond with "I'm sorry, I don't have enough information to answer that question based on the available news articles."
 

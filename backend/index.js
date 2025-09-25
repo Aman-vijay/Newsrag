@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import ragRouter from "./routes/ragRoutes.js";
+import chatRouter from "./routes/chatRoutes.js";
 const PORT = process.env.PORT || 5000;
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use("/api/rag", ragRouter);
+app.use("/api/chat", chatRouter);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
