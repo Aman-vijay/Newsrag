@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChatStream } from '@/hooks';
 import { chatApi } from '@/api';
-import { SessionControls, MessageBubble, MessageInput, Loader } from '@/components';
+import { SessionControls, MessageBubble, MessageInput, LoadingState } from '@/components';
 import './ChatWindow.scss';
 
 const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
@@ -205,9 +205,7 @@ const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
   if (!sessionId) {
     return (
       <div className="chat-window">
-        <div className="chat-loading">
-          <Loader message="Initializing chat..." />
-        </div>
+        <LoadingState message="Initializing chat..." className="full-container" />
       </div>
     );
   }

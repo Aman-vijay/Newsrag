@@ -1,0 +1,47 @@
+@use '@/styles/index' as *;
+
+.loading-state, 
+.error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  
+  &.full-height {
+    height: 100vh;
+  }
+  
+  &.full-container {
+    height: 100%;
+  }
+}
+
+.session-loading-state,
+.session-error-state {
+  height: 100vh;
+  background: var(--bg-primary);
+  
+  .container {
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+  }
+}
+
+// Page-specific states
+.chat-page {
+  .loading-state,
+  .error-state {
+    height: 100vh;
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--spacing-xl);
+    }
+  }
+}

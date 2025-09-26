@@ -1,48 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { chatApi } from '@/api';
-import { MessageInput, Loader } from '@/components';
+import { useSession } from '@/hooks';
+import { MessageInput, Loader, ErrorDisplay } from '@/components';
 import './LandingPage.scss';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
+
+  const { sessionId, isCreatingSession: isCreating, createSession } = useSession();
 
   const handleSendMessage = async (message) => {
     if (!message.trim()) return;
 
-    setIsCreating(true);
     setError(null);
 
     try {
-      // Create new session
-      const response = await chatApi.createSession();
-      const sessionId = response.sessionId;
-      
-      // Store session for persistence
-      localStorage.setItem('sessionId', sessionId);
+      // Create new session using the centralized hook
+      const newSessionId = await createSession();
       
       // Navigate to chat page with the message
-      navigate(`/chat/${sessionId}`, { 
+      navigate(`/chat/${newSessionId}`, { 
         state: { initialMessage: message }
       });
     } catch (err) {
       setError(err.message);
       console.error('Failed to create session:', err);
-    } finally {
-      setIsCreating(false);
     }
   };
 
   const handleExistingSession = () => {
-    const storedSessionId = localStorage.getItem('sessionId');
-    if (storedSessionId) {
-      navigate(`/chat/${storedSessionId}`);
+    if (sessionId) {
+      navigate(`/chat/${sessionId}`);
     }
   };
-
-  const storedSessionId = localStorage.getItem('sessionId');
 
   return (
     <div className="landing-page">
@@ -77,7 +68,7 @@ const LandingPage = () => {
             <h2>Start your news conversation</h2>
             <p>Ask me anything about recent news, current events, or trending topics</p>
             
-            {storedSessionId && (
+            {sessionId && (
               <div className="existing-session">
                 <p>You have an existing chat session</p>
                 <button 
@@ -106,9 +97,12 @@ const LandingPage = () => {
 
             {error && (
               <div className="error-message">
-                <span className="error-icon">⚠️</span>
-                <span>{error}</span>
-                <button onClick={() => setError(null)}>×</button>
+                <ErrorDisplay 
+                  error={error}
+                  title="Session Creation Failed"
+                  onDismiss={() => setError(null)}
+                  type="error"
+                />
               </div>
             )}
           </div>

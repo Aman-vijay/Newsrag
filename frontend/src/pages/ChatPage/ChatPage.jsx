@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChatWindow } from '@/components';
-import { chatApi } from '@/api';
-import { Loader } from '@/components';
+import { ChatWindow, SessionLoadingState, SessionErrorState } from '@/components';
+import { useSession } from '@/hooks';
 import './ChatPage.scss';
 
 const ChatPage = () => {
   const { sessionId: urlSessionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sessionId, setSessionId] = useState(null);
-  const [isCreatingSession, setIsCreatingSession] = useState(false);
-  const [sessionError, setSessionError] = useState(null);
   const [initialMessage, setInitialMessage] = useState(null);
 
-  useEffect(() => {
-    initializeSession();
-  }, [urlSessionId]);
+  const {
+    sessionId,
+    isCreatingSession,
+    sessionError,
+    createSession,
+    resetSession,
+    initializeSession,
+  } = useSession();
 
   // Handle initial message from landing page
   useEffect(() => {
@@ -27,99 +28,64 @@ const ChatPage = () => {
     }
   }, [location.state, navigate, location.pathname]);
 
-  const initializeSession = async () => {
-    // If there's a sessionId in URL, use that
-    if (urlSessionId) {
-      setSessionId(urlSessionId);
-      // Store in localStorage for persistence
-      localStorage.setItem('sessionId', urlSessionId);
-      return;
-    }
-
-    // Check if there's a stored session
-    const storedSessionId = localStorage.getItem('sessionId');
-    if (storedSessionId) {
-      setSessionId(storedSessionId);
-      // Update URL to match the stored session
-      navigate(`/chat/${storedSessionId}`, { replace: true });
-      return;
-    }
-
-    // If no session exists, create a new one
-    await createNewSession();
-  };
-
-  const createNewSession = async () => {
-    setIsCreatingSession(true);
-    setSessionError(null);
-    
+  const handleSessionInitialization = useCallback(async () => {
     try {
-      const response = await chatApi.createSession();
-      const newSessionId = response.sessionId;
-      
-      setSessionId(newSessionId);
-      localStorage.setItem('sessionId', newSessionId);
-      
-      // Navigate to the new session URL
-      navigate(`/chat/${newSessionId}`, { replace: true });
-      
-      console.log('✅ New session created:', newSessionId);
+      const activeSessionId = await initializeSession(urlSessionId, navigate);
+      if (activeSessionId && !urlSessionId) {
+        // Navigate to the session URL if we're not already there
+        navigate(`/chat/${activeSessionId}`, { replace: true });
+      }
     } catch (error) {
-      setSessionError(error.message);
-      console.error('❌ Session creation failed:', error);
-    } finally {
-      setIsCreatingSession(false);
+      console.error('Failed to initialize session:', error);
     }
-  };
+  }, [urlSessionId, initializeSession, navigate]);
 
-  const handleSessionError = (errorType) => {
+  useEffect(() => {
+    handleSessionInitialization();
+  }, [handleSessionInitialization]);
+
+  const handleSessionError = async (errorType) => {
     switch (errorType) {
       case 'new_session_requested':
         // Clear current session and create new one
-        localStorage.removeItem('sessionId');
-        createNewSession();
+        resetSession();
+        try {
+          const newSessionId = await createSession();
+          navigate(`/chat/${newSessionId}`, { replace: true });
+        } catch (error) {
+          console.error('Failed to create new session:', error);
+        }
         break;
       case 'history_load_failed':
         // Session might be invalid, create new one
-        setSessionError('Session expired. Creating new session...');
-        localStorage.removeItem('sessionId');
-        setTimeout(() => createNewSession(), 1000);
+        resetSession();
+        setTimeout(async () => {
+          try {
+            const newSessionId = await createSession();
+            navigate(`/chat/${newSessionId}`, { replace: true });
+          } catch (error) {
+            console.error('Failed to create new session:', error);
+          }
+        }, 1000);
         break;
       default:
-        setSessionError('An unexpected error occurred');
+        console.error('Unexpected session error:', errorType);
     }
   };
 
   // Show loading state while creating session
   if (isCreatingSession) {
-    return (
-      <div className="chat-page">
-        <div className="chat-container">
-          <div className="chat-loading">
-            <Loader message="Creating new session..." />
-          </div>
-        </div>
-      </div>
-    );
+    return <SessionLoadingState message="Creating new session..." />;
   }
 
   // Show error state if session creation failed
   if (sessionError && !sessionId) {
     return (
-      <div className="chat-page">
-        <div className="chat-container">
-          <div className="chat-error">
-            <div className="error-content">
-              <span className="error-icon">⚠️</span>
-              <h3>Failed to create session</h3>
-              <p>{sessionError}</p>
-              <button onClick={createNewSession} className="retry-button">
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SessionErrorState 
+        error={sessionError}
+        onRetry={createSession}
+        title="Failed to create session"
+      />
     );
   }
 
