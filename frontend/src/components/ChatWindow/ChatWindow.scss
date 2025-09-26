@@ -5,8 +5,9 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--bg-primary);
   position: relative;
+  transition: all var(--transition-normal);
   
   // Modern glass effect background
   &::before {
@@ -17,8 +18,9 @@
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 20%),
-      radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.03) 0%, transparent 20%);
+      radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 30%),
+      radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 30%),
+      radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
     pointer-events: none;
     z-index: 0;
   }
@@ -45,23 +47,7 @@
     }
     
     // Modern custom scrollbar
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    &::-webkit-scrollbar-track {
-      background: rgba(148, 163, 184, 0.1);
-      border-radius: 10px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-      border-radius: 10px;
-      
-      &:hover {
-        background: linear-gradient(135deg, var(--primary-hover), var(--accent-hover));
-      }
-    }
+    @include custom-scrollbar(8px, rgba(148, 163, 184, 0.1), linear-gradient(135deg, var(--primary-color), var(--accent-color)));
     
     // Enhanced welcome message
     .welcome-message {
@@ -70,26 +56,40 @@
       justify-content: center;
       min-height: 60vh;
       padding: 2rem;
-      animation: fadeInUp 0.6s ease-out;
+      animation: fadeInUp 0.8s ease-out;
       
       .welcome-content {
         text-align: center;
         max-width: 600px;
-        background: rgba(255, 255, 255, 0.8);
+        background: var(--bg-glass);
         backdrop-filter: blur(20px);
         border: 1px solid var(--border-color);
-        border-radius: 1.5rem;
+        border-radius: var(--radius-3xl);
         padding: 3rem 2rem;
         box-shadow: var(--shadow-xl);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+          border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+        }
         
         h2 {
           font-size: 2.25rem;
           font-weight: 800;
-          background: linear-gradient(135deg, var(--news-primary), var(--primary-color));
+          background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           margin-bottom: 1rem;
+          animation: slideInDown 0.6s ease-out 0.2s both;
           
           @include respond-below(sm) {
             font-size: 1.875rem;
@@ -101,6 +101,7 @@
           color: var(--text-secondary);
           line-height: 1.6;
           margin-bottom: 2rem;
+          animation: fadeIn 0.6s ease-out 0.4s both;
           
           @include respond-below(sm) {
             font-size: 1rem;
@@ -123,10 +124,28 @@
             align-items: center;
             gap: 0.75rem;
             padding: 1rem;
-            background: rgba(255, 255, 255, 0.6);
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            transition: all var(--transition-normal);
+            border-radius: var(--radius-xl);
+            transition: all var(--transition-bounce);
+            animation: fadeInUp 0.6s ease-out calc(0.6s + var(--i) * 0.1s) both;
+            position: relative;
+            overflow: hidden;
+
+            &:nth-child(1) { --i: 0; }
+            &:nth-child(2) { --i: 1; }
+            &:nth-child(3) { --i: 2; }
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: -100%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+              transition: left var(--transition-slow);
+            }
             
             @include respond-below(sm) {
               justify-content: center;
@@ -134,16 +153,25 @@
             }
             
             &:hover {
-              transform: translateY(-2px);
+              transform: translateY(-4px) scale(1.02);
               box-shadow: var(--shadow-md);
               border-color: var(--primary-color);
-              background: rgba(255, 255, 255, 0.9);
+              background: var(--bg-hover);
+
+              &::before {
+                left: 100%;
+              }
+
+              .feature-icon {
+                transform: scale(1.2);
+              }
             }
             
             .feature-icon {
               font-size: 1.25rem;
               flex-shrink: 0;
               filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+              transition: transform var(--transition-bounce);
             }
             
             span:last-child {
@@ -163,10 +191,10 @@
       align-items: center;
       gap: 0.75rem;
       padding: 1rem;
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--bg-glass);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border-color);
-      border-radius: 1rem;
+      border-radius: var(--radius-xl);
       max-width: fit-content;
       box-shadow: var(--shadow-sm);
       animation: slideInLeft 0.3s ease-out;
@@ -182,6 +210,7 @@
         font-size: 1rem;
         flex-shrink: 0;
         box-shadow: var(--shadow-sm);
+        animation: pulse 2s infinite;
       }
       
       .typing-animation {
@@ -217,7 +246,7 @@
     background: var(--danger-color);
     color: white;
     padding: 1rem 1.5rem;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
     display: flex;
     align-items: center;
@@ -226,9 +255,36 @@
     font-weight: 500;
     z-index: 1000;
     animation: slideUp 0.3s ease-out;
+    backdrop-filter: blur(10px);
     
     .toast-icon {
       font-size: 1rem;
+    }
+  }
+
+  // Dark theme adjustments
+  [data-theme="dark"] & {
+    background: var(--bg-primary);
+
+    .messages-container {
+      .welcome-message .welcome-content {
+        background: var(--bg-glass);
+        border-color: var(--border-color);
+
+        .welcome-features .feature {
+          background: var(--bg-secondary);
+          border-color: var(--border-color);
+
+          &:hover {
+            background: var(--bg-hover);
+          }
+        }
+      }
+
+      .typing-indicator {
+        background: var(--bg-glass);
+        border-color: var(--border-color);
+      }
     }
   }
 }
@@ -249,6 +305,26 @@
   from {
     opacity: 0;
     transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -278,6 +354,15 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 // Reduced motion preference
 @media (prefers-reduced-motion: reduce) {
   .chat-window {
@@ -289,8 +374,14 @@
       animation: none;
       
       .welcome-content {
+        h2, > p {
+          animation: none;
+        }
+        
         .welcome-features {
           .feature {
+            animation: none;
+            
             &:hover {
               transform: none;
             }
@@ -301,6 +392,10 @@
     
     .typing-indicator {
       animation: none;
+
+      .bot-avatar-small {
+        animation: none;
+      }
     }
     
     .typing-animation {

@@ -21,6 +21,7 @@
   --bg-hover: #e2e8f0;
   --bg-glass: rgba(255, 255, 255, 0.95);
   --bg-overlay: rgba(15, 23, 42, 0.8);
+    
   
   // Text colors - High contrast
   --text-primary: #0f172a;
@@ -71,6 +72,7 @@
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3);
+  --shadow-colored: 0 10px 25px -5px rgba(37, 99, 235, 0.2);
   
   // Spacing
   --spacing-xs: 0.25rem;   // 4px
@@ -88,18 +90,23 @@
   --font-size-xl: 1.25rem;    // 20px
   --font-size-2xl: 1.5rem;    // 24px
   --font-size-3xl: 1.875rem;  // 30px
+  --font-size-4xl: 2.25rem;   // 36px
+  --font-size-5xl: 3rem;      // 48px
   
   // Border radius
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
   --radius-full: 9999px;
   
   // Transitions
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;
   --transition-slow: 0.3s ease;
+  --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
   // Z-index layers
   --z-dropdown: 1000;
@@ -113,20 +120,46 @@
 
 // Dark theme
 [data-theme="dark"] {
-  --bg-primary: #111827;
-  --bg-secondary: rgba(17, 24, 39, 0.8);
+  // Backgrounds - Dark theme
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
   --bg-tertiary: #1f2937;
   --bg-hover: #374151;
+  --bg-glass: rgba(15, 23, 42, 0.95);
+  --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-light: #1e293b;
   
+  // Text colors - Dark theme
   --text-primary: #f9fafb;
   --text-secondary: #d1d5db;
   --text-muted: #9ca3af;
+  --text-inverse: #0f172a;
   
+  // Border colors - Dark theme
   --border-color: #374151;
   --border-hover: #4b5563;
+  --border-focus: #60a5fa;
   
+  // Chat specific - Dark theme
   --bot-bubble: #1f2937;
   --bot-bubble-border: #374151;
+  --bot-text: var(--text-primary);
+  
+  // Status colors - Dark theme adjustments
+  --success-light: rgba(16, 185, 129, 0.1);
+  --warning-light: rgba(245, 158, 11, 0.1);
+  --danger-light: rgba(239, 68, 68, 0.1);
+  --info-light: rgba(59, 130, 246, 0.1);
+  
+  // Shadows - Dark theme
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.4);
+  --shadow-colored: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
 }
 
 // Breakpoints

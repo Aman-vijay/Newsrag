@@ -10,4 +10,5 @@ export { default as SourcesList } from './SourcesList/SourcesList';
 export { default as Loader } from './Loader/Loader';
 export { default as ErrorDisplay } from './ErrorDisplay/ErrorDisplay';
 export { LoadingState, ErrorState, SessionLoadingState, SessionErrorState } from './LoadingStates/LoadingStates';
+export { default as ThemeToggle } from './ThemeToggle/ThemeToggle';
 
