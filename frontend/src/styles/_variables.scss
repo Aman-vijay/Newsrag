@@ -1,43 +1,76 @@
 // src/styles/_variables.scss
 
-// Color Palette
+// Color Palette - Modern News Theme
 :root {
-  // Primary colors
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
+  // Primary colors - Professional blue
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
   --primary-light: #dbeafe;
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   
-  // Backgrounds
+  // Secondary colors - News accent
+  --secondary-color: #0f172a;
+  --secondary-hover: #1e293b;
+  --accent-color: #f59e0b;
+  --accent-hover: #d97706;
+  
+  // Backgrounds - Clean and modern
   --bg-primary: #ffffff;
-  --bg-secondary: rgba(255, 255, 255, 0.8);
-  --bg-tertiary: #f8fafc;
-  --bg-hover: #f1f5f9;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --bg-overlay: rgba(15, 23, 42, 0.8);
   
-  // Text colors
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
+  // Text colors - High contrast
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   --text-inverse: #ffffff;
+  --text-accent: #2563eb;
   
   // Border colors
-  --border-color: #e5e7eb;
-  --border-hover: #d1d5db;
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --border-focus: #2563eb;
   
-  // Status colors
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --info-color: #3b82f6;
+  // Status colors - Modern palette
+  --success-color: #059669;
+  --success-light: #d1fae5;
+  --warning-color: #d97706;
+  --warning-light: #fef3c7;
+  --danger-color: #dc2626;
+  --danger-light: #fee2e2;
+  --info-color: #0284c7;
+  --info-light: #e0f2fe;
   
-  // Chat specific
-  --user-bubble: #3b82f6;
-  --bot-bubble: #f8fafc;
-  --bot-bubble-border: #e5e7eb;
+  // Chat specific - News theme
+  --user-bubble: var(--primary-gradient);
+  --user-text: #ffffff;
+  --bot-bubble: #ffffff;
+  --bot-bubble-border: var(--border-color);
+  --bot-text: var(--text-primary);
   
-  // Shadows
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  // News specific colors
+  --news-primary: #1e40af;
+  --news-secondary: #0f172a;
+  --highlight-color: #fbbf24;
+  
+  // RGB values for alpha transparency
+  --primary-rgb: 37, 99, 235;
+  --danger-rgb: 220, 38, 38;
+  --success-rgb: 16, 185, 129;
+  --warning-rgb: 245, 158, 11;
+  
+  // Shadows - Enhanced depth
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3);
   
   // Spacing
   --spacing-xs: 0.25rem;   // 4px

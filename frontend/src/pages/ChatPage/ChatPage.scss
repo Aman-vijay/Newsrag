@@ -3,22 +3,42 @@
 
 .chat-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, 
-    rgba(59, 130, 246, 0.05) 0%, 
-    rgba(139, 92, 246, 0.05) 100%);
-  padding: var(--spacing-lg);
+  background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 1rem;
   @include flex-center;
+  position: relative;
+
+  // Matching background elements from LandingPage
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
   .chat-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
     height: calc(100vh - 2rem);
-    background: var(--bg-primary);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-2xl);
     border: 1px solid var(--border-color);
     overflow: hidden;
-    @include glass-effect(0.95, 20px);
+    position: relative;
+    z-index: 1;
+
+    @include respond-to(lg) {
+      max-width: 1200px;
+    }
   }
 
   // Mobile responsiveness
