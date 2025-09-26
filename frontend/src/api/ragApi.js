@@ -1,4 +1,4 @@
-import { apiRequest, validateMessage } from '@utils/index.js';
+import { apiRequest, validateMessage } from '@/utils/index.js';
 
 class RAGAPI {
   async initializeNews() {

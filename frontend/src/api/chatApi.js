@@ -1,4 +1,4 @@
-import { chatRequest, validateMessage } from '@utils/index.js';
+import { chatRequest, validateMessage } from '@/utils/index.js';
 
 class ChatAPI {
   async createSession() {
@@ -31,7 +31,7 @@ class ChatAPI {
         throw new Error('Message cannot be empty');
       }
 
-      return await chatRequest.postStream('/message/stream', { sessionId, message });
+      return await chatRequest.postStream('/', { sessionId, message });
     } catch (error) {
       console.error('❌ Failed to start message stream:', error);
       throw new Error('Failed to start message stream');
