@@ -24,9 +24,10 @@ export const useSession = () => {
     }
   }, []);
 
-  const createSession = useCallback(async () => {
-    // If session already exists, return it
-    if (sessionId) {
+  // Accept forceNew param to always create a new session
+  const createSession = useCallback(async (forceNew = false) => {
+    // If session already exists and not forcing new, return it
+    if (sessionId && !forceNew) {
       console.log("✅ Reusing existing session:", sessionId);
       return sessionId;
     }
@@ -50,6 +51,7 @@ export const useSession = () => {
     }
   }, [sessionId, updateSession]);
 
+  // Reset session: clear sessionId and let parent trigger new session creation
   const resetSession = useCallback(() => {
     updateSession(null);
     setSessionError(null);

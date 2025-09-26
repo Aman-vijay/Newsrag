@@ -4,7 +4,7 @@ import { chatApi } from '@/api';
 import { SessionControls, MessageBubble, MessageInput, LoadingState } from '@/components';
 import './ChatWindow.scss';
 
-const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
+ const ChatWindow = ({ sessionId, onSessionError, onNewSession, initialMessage }) => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasProcessedInitialMessage, setHasProcessedInitialMessage] = useState(false);
@@ -45,13 +45,10 @@ const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
   };
 
   const handleNewSession = () => {
-    // This should trigger session creation at parent level
-    // Navigate to landing page or trigger new session creation
-    if (onSessionError) {
-      onSessionError('new_session_requested');
-    }
-  };
-
+  if (onNewSession) {
+     onNewSession();
+   }
+ };
   const handleClearHistory = async () => {
     if (!sessionId) return;
     
@@ -213,12 +210,13 @@ const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
   return (
     <div className="chat-window">
       <SessionControls
-        sessionId={sessionId}
-        onNewSession={handleNewSession}
-        onClearHistory={handleClearHistory}
-        onLoadHistory={handleLoadHistory}
-        isLoading={isLoading || isStreaming}
-      />
+  sessionId={sessionId}
+  onNewSession={handleNewSession}
+  onClearHistory={handleClearHistory}
+  onLoadHistory={handleLoadHistory}
+  isLoading={isLoading || isStreaming}
+/>
+
 
       <div className="messages-container">
         {messages.length === 0 && !initialMessage ? (

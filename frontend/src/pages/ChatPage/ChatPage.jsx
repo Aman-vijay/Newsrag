@@ -92,11 +92,16 @@ const ChatPage = () => {
   return (
     <div className="chat-page">
       <div className="chat-container">
-        <ChatWindow 
-          sessionId={sessionId} 
-          onSessionError={handleSessionError}
-          initialMessage={initialMessage}
-        />
+        <ChatWindow
+  sessionId={sessionId}
+  onSessionError={handleSessionError}
+  onNewSession={async () => {
+    const newSessionId = await createSession(true);
+    navigate(`/chat/${newSessionId}`, { replace: true });
+  }}
+  initialMessage={initialMessage}
+/>
+
       </div>
     </div>
   );
