@@ -1,12 +1,14 @@
-import './app.scss'
-function App() {
- 
+import React from 'react';
+import { ChatPage } from '@/pages';
+import '@/styles/index.scss';
+import './App.scss';
 
+function App() {
   return (
-    <>
-     <div  className='hello-scss'>  React with Scss</div>
-    </>
-  )
+    <div className="app">
+      <ChatPage />
+    </div>
+  );
 }
 
-export default App
+export default App;

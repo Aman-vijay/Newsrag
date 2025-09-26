@@ -1,5 +1,10 @@
-.hello-scss {
-    color: red;
-    font-size: 24px;
-    font-weight: bold;
+// src/App.scss
+@use './styles/index' as *;
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  font-family: $font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

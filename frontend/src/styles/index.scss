@@ -1,0 +1,12 @@
+// src/styles/index.scss
+// Main stylesheet entry point - Use order matters!
+
+// 1. Forward variables and mixins (so other files can use them)
+@forward 'variables';
+@forward 'mixins';
+
+// 2. Use and apply global styles
+@use 'globals';
+
+// This file should be imported in your main.jsx or App.jsx like:
+// import './styles/index.scss';
