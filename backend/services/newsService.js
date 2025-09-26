@@ -1,85 +1,121 @@
 import Parser from "rss-parser";
 import { qdrantClient, testQdrantConnection } from "../configs/qdrant.js";
-import { embedder, generateEmbedding } from "../configs/embeddings.js";
+import { generateEmbedding } from "../configs/embeddings.js";
 
 const parser = new Parser();
+
+// Configs
 const COLLECTION_NAME = "news";
+const DISTANCE_METRIC = "Cosine";
+const DEFAULT_LIMIT = 60;
+
+const RSS_FEEDS = [
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://feeds.bbci.co.uk/news/rss.xml",
+  "https://feeds.bbci.co.uk/news/politics/rss.xml",
+  "https://feeds.bbci.co.uk/news/business/rss.xml",
+  "https://feeds.bbci.co.uk/news/technology/rss.xml",
+  "https://rss.cnn.com/rss/edition.rss",
+  "https://rss.cnn.com/rss/cnn_world.rss",
+  "https://www.aljazeera.com/xml/rss/all.xml",
+  "https://feeds.npr.org/1004/rss.xml",
+];
 
 /**
- * Fetch ~50 news articles via RSS
+ * Helper: normalize RSS item into article object
  */
-export async function fetchNews(limit = 50) {
- 
-  const RSS_FEEDS = [
-    "https://feeds.bbci.co.uk/news/world/rss.xml", // BBC News
-  ];
+function normalizeArticle(item, id) {
+  return {
+    id,
+    title: item.title || "No title",
+    link: item.link || "",
+    content: item.contentSnippet || item.content || item.summary || "",
+  };
+}
+
+/**
+ * Fetch ~ N news articles via RSS
+ */
+export async function fetchNews(limit = DEFAULT_LIMIT) {
+  const allArticles = [];
+  let articleId = 0;
 
   for (const feedUrl of RSS_FEEDS) {
     try {
-      console.log(`Trying RSS feed: ${feedUrl}`);
+      console.log(`🌐 Fetching RSS feed: ${feedUrl}`);
       const feed = await parser.parseURL(feedUrl);
-      
-      if (feed && feed.items && feed.items.length > 0) {
-        console.log(`✅ Successfully fetched ${feed.items.length} articles from ${feedUrl}`);
-        return feed.items.slice(0, limit).map((item, idx) => ({
-          id: idx,
-          title: item.title || "No title",
-          link: item.link || "",
-          content: item.contentSnippet || item.content || item.summary || "",
-        }));
+
+      if (feed?.items?.length) {
+        const articles = feed.items.map((item) =>
+          normalizeArticle(item, articleId++)
+        );
+        allArticles.push(...articles);
+
+        console.log(`✅ Got ${articles.length} articles from ${feedUrl}`);
+
+        if (allArticles.length >= limit) break;
       }
     } catch (error) {
-      console.log(`❌ Failed to fetch from ${feedUrl}:`, error.message);
-      continue; 
+      console.warn(`⚠️ Failed to fetch from ${feedUrl}: ${error.message}`);
     }
   }
-  
-  throw new Error("All RSS feeds failed to load");
+
+  if (!allArticles.length) {
+    throw new Error("No articles fetched from any RSS feeds");
+  }
+
+  console.log(`🎉 Collected total ${allArticles.length} articles`);
+  return allArticles.slice(0, limit);
 }
 
+/**
+ * Generate embeddings for articles
+ */
 export async function embedArticles(articles) {
   const embedded = [];
-  console.log(`🔄 Starting to generate embeddings for ${articles.length} articles...`);
-  
+
+  console.log(`🧠 Generating embeddings for ${articles.length} articles...`);
+
   for (let i = 0; i < articles.length; i++) {
     const article = articles[i];
+    const text = `${article.title} ${article.content}`;
+
     try {
-      const text = `${article.title} ${article.content}`;
-      console.log(`📝 Processing article ${i + 1}/${articles.length}: "${article.title.substring(0, 51)}..."`);
-      
+      console.log(`→ [${i + 1}/${articles.length}] ${article.title}`);
       const embedding = await generateEmbedding(text);
       embedded.push({ ...article, embedding });
-      
-      console.log(`✅ Generated embedding for article ${i + 1} (dimension: ${embedding.length})`);
     } catch (error) {
-      console.error(`❌ Failed to generate embedding for article ${i + 1}:`, error.message);
-      throw new Error(`Embedding generation failed for article "${article.title}": ${error.message}`);
+      console.error(`❌ Skipped article "${article.title}" – ${error.message}`);
     }
   }
-  
-  console.log(`🎉 Successfully generated embeddings for all ${embedded.length} articles`);
+
+  console.log(`✅ Generated embeddings for ${embedded.length} articles`);
   return embedded;
 }
 
 /**
  * Store embeddings in Qdrant
  */
-export async function storeInQdrant(articles) {
+export async function storeInQdrant(articles, { recreate = false } = {}) {
   if (!articles.length) return;
-  
+
   try {
-    console.log("🔍 Testing Qdrant connection before storing...");
+    console.log("🔍 Checking Qdrant connection...");
     await testQdrantConnection();
-    
-    console.log(`📦 Creating/recreating collection: ${COLLECTION_NAME}`);
-    console.log(`📏 Vector dimension: ${articles[0].embedding.length}`);
-    
-    // Create collection if not exists
-    await qdrantClient.recreateCollection(COLLECTION_NAME, {
-      vectors: { size: articles[0].embedding.length, distance: "Cosine" },
-    });
-    
-    console.log("✅ Collection created/recreated successfully");
+
+    const vectorSize = articles[0].embedding.length;
+
+    if (recreate) {
+      console.log(`📦 Recreating collection "${COLLECTION_NAME}"`);
+      await qdrantClient.recreateCollection(COLLECTION_NAME, {
+        vectors: { size: vectorSize, distance: DISTANCE_METRIC },
+      });
+    } else {
+      console.log(`📦 Ensuring collection "${COLLECTION_NAME}" exists`);
+      await qdrantClient.createCollection(COLLECTION_NAME, {
+        vectors: { size: vectorSize, distance: DISTANCE_METRIC },
+      });
+    }
 
     const points = articles.map((article) => ({
       id: article.id,
@@ -91,14 +127,13 @@ export async function storeInQdrant(articles) {
       },
     }));
 
-    console.log(`💾 Upserting ${points.length} points to Qdrant...`);
+    console.log(`💾 Upserting ${points.length} points...`);
     await qdrantClient.upsert(COLLECTION_NAME, { points });
+
     console.log(`✅ Stored ${articles.length} articles in Qdrant`);
-    
   } catch (error) {
     console.error("❌ Failed to store in Qdrant:", error.message);
-    console.error("Stack trace:", error.stack);
-    throw new Error(`Qdrant storage failed: ${error.message}`);
+    throw error;
   }
 }
 
@@ -107,56 +142,39 @@ export async function storeInQdrant(articles) {
  */
 export async function searchNews(query, topK = 5) {
   try {
-    console.log(`🔍 Searching for: "${query}"`);
-    
-    // Test connection first
+    console.log(`🔍 Searching news for: "${query}"`);
     await testQdrantConnection();
-    
-    // Generate embedding for query (use retrieval.query type)
+
     const embedding = await generateEmbedding(query);
-    console.log(`🧠 Generated query embedding (dimension: ${embedding.length})`);
-    
-    // Search Qdrant
-    console.log(`🔍 Searching Qdrant collection: ${COLLECTION_NAME}`);
+    console.log(`🧠 Generated query embedding [dim=${embedding.length}]`);
+
     const results = await qdrantClient.search(COLLECTION_NAME, {
       vector: embedding,
       limit: topK,
     });
-    
+
     console.log(`✅ Found ${results.length} results`);
     return results;
-    
   } catch (error) {
     console.error("❌ Search failed:", error.message);
-    throw new Error(`Search failed: ${error.message}`);
+    throw error;
   }
 }
 
 /**
  * Full pipeline: fetch → embed → store
  */
-export async function ingestNewsPipeline() {
+export async function ingestNewsPipeline({ recreate = true } = {}) {
   try {
     console.log("🚀 Starting news ingestion pipeline...");
-    
-    // Step 1: Fetch articles
-    console.log("📰 Step 1: Fetching news articles...");
+
     const articles = await fetchNews();
-    console.log(`✅ Fetched ${articles.length} articles`);
-    
-    // Step 2: Generate embeddings
-    console.log("🧠 Step 2: Generating embeddings...");
     const embedded = await embedArticles(articles);
-    console.log(`✅ Generated embeddings for ${embedded.length} articles`);
-    
-    // Step 3: Store in Qdrant
-    console.log("💾 Step 3: Storing in Qdrant...");
-    await storeInQdrant(embedded);
-    console.log("🎉 News ingestion pipeline completed successfully!");
-    
+    await storeInQdrant(embedded, { recreate });
+
+    console.log("🎉 Pipeline completed successfully!");
   } catch (error) {
     console.error("💥 Pipeline failed:", error.message);
-    console.error("Stack trace:", error.stack);
     throw error;
   }
 }
