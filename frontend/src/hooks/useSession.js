@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback,useEffect } from 'react';
 import { chatApi } from '@/api';
 
 export const useSession = () => {
@@ -6,14 +6,27 @@ export const useSession = () => {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [sessionError, setSessionError] = useState(null);
 
+  useEffect(()=>{
+    const storedSession = localStorage.getItem("sessionId")
+    if(storedSession){
+        setSessionId(storedSession);}
+  },[]);
+
   const createSession = useCallback(async () => {
     setIsCreatingSession(true);
     setSessionError(null);
     
     try {
+
+        if (sessionId) {
+        console.log("✅ Reusing existing session:", sessionId);
+        return sessionId;
+      }
+
+
       const response = await chatApi.createSession();
       setSessionId(response.sessionId);
-      console.log('✅ Session created:', response.sessionId);
+      localStorage.setItem("sessionId",response.sessionId);
       return response.sessionId;
     } catch (error) {
       setSessionError(error.message);
@@ -26,6 +39,7 @@ export const useSession = () => {
 
   const resetSession = useCallback(() => {
     setSessionId(null);
+    localStorage.removeItem("sessionId");
     setSessionError(null);
   }, []);
 

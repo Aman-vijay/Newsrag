@@ -24,10 +24,6 @@ const ChatWindow = () => {
     sendNormalMessage 
   } = useChatStream();
 
-  // Initialize session on mount
-  useEffect(() => {
-    createSession();
-  }, [createSession]);
 
   // Auto scroll to bottom when messages change
   useEffect(() => {
@@ -140,12 +136,13 @@ const ChatWindow = () => {
             msg.id === botMessageId 
               ? { 
                   ...msg, 
-                  content: 'Sorry, I encountered an error. Please try again.',
+                  content:  `Sorry, I encountered an error. Please try again.`,
                   isError: true,
                   isStreaming: false 
                 }
               : msg
           ));
+          console.error('Streaming error:', error);
         }
       );
     } catch (error) {
