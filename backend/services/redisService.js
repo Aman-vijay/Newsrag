@@ -30,25 +30,55 @@ export const saveMessage = async (sessionId, message) => {
 }
 
 // Get full chat history
+// export const getChatHistory = async (sessionId) => {
+//   try {
+//     const key = `chat:${sessionId}`;
+//     const items = await redis.lrange(key, 0, -1);
+
+//     if (!items || items.length === 0) {
+//       console.log(`ℹ️ No history found for ${key}`);
+//       return [];
+//     }
+
+//     return items.map((item) => JSON.parse(item));
+//   } catch (error) {
+//     console.error("❌ Redis get error:", error);
+//     throw new Error(`Failed to get chat history: ${error.message}`);
+//   }
+// };
+
 export const getChatHistory = async (sessionId) => {
-  try {
+  try{
     const key = `chat:${sessionId}`;
     const items = await redis.lrange(key, 0, -1);
 
-    if (!items || items.length === 0) {
-      console.log(`ℹ️ No history found for ${key}`);
-      return [];
-    }
+    return items.map((item)=>{
+      try{
+        if(typeof item ==='object' && item !== null){
+          return item; // Already an object
+        }
+        if(typeof item === 'string' && (item.startsWith('{') || item.startsWith('['))){
+          return JSON.parse(item); // Parse valid JSON strings
+        }
 
-    return items.map((item) => JSON.parse(item));
-  } catch (error) {
+        return{
+          type:'unknown',
+          content: item ,// Store raw string for invalid JSON
+          timestamp: new Date().toISOString()
+        };
+      } catch(e){
+        console.warn(`⚠️ Skipping corrupted message: ${item}`);
+        return { type: 'error', content: 'Failed to parse message', timestamp: new Date().toISOString(), error: e.message };
+      }
+    });
+  } catch(error){
     console.error("❌ Redis get error:", error);
     throw new Error(`Failed to get chat history: ${error.message}`);
   }
-};
+}
 
 
-// Clear chat history
+  // Clear chat history
 export const clearChatHistory = async (sessionId) => {
   try {
     const key = `chat:${sessionId}`;

@@ -213,7 +213,6 @@ export const getHistory = async (req, res) => {
     console.log(`📚 Fetching history for session: ${sessionId}`);
     const history = await getChatHistory(sessionId);
     res.json({ history });
-    console.log(history)
     
   } catch (error) {
     console.error("❌ Get history error:", error.message);
