@@ -1,21 +1,17 @@
 import { redis } from "../configs/redis.js";
 
-const CHAT_TTL = 60 * 60 * 24; // 24h
+const CHAT_TTL = 60 * 60 * 24; 
 
-// Save a message to session history
+
 export const saveMessage = async (sessionId, message) => {
   try {
     const key = `chat:${sessionId}`;
-
-    // Push new message to Redis list
     await redis.rpush(key, JSON.stringify(message));
-
-    // Set expiry only if key is new (so TTL resets with first message)
     await redis.expire(key, CHAT_TTL);
 
-    console.log(`💾 Saved message to session ${sessionId}`);
+    console.log(`Saved message to session ${sessionId}`);
   } catch (error) {
-    console.error("❌ Redis save error:", error);
+    console.error("Redis save error:", error);
     throw new Error(`Failed to save message: ${error.message}`);
   }
 }

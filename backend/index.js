@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { testRedisConnection } from "./services/redisService.js";
+import { FRONTEND_URL } from "./utils/util.js";
 
 // Load environment variables first
 dotenv.config();
@@ -19,7 +20,12 @@ testRedisConnection().catch((err) => {
 }
 )
 // Middleware
-app.use(cors());
+app.use(cors(
+    {
+        origin: FRONTEND_URL,
+        credentials: true,
+    }
+));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
