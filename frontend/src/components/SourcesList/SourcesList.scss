@@ -1,0 +1,197 @@
+// src/components/SourcesList/SourcesList.scss
+@use '@/styles/index' as *;
+
+.sources-list {
+  margin-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--spacing-md);
+
+  .sources-header {
+    @include flex-between;
+    margin-bottom: var(--spacing-md);
+    
+    .sources-icon {
+      font-size: 1rem;
+    }
+    
+    .sources-title {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex: 1;
+      margin-left: var(--spacing-sm);
+    }
+
+    .expand-button {
+      @include button-base;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: var(--spacing-xs);
+      border-radius: var(--radius-sm);
+      transition: var(--transition-fast);
+
+      &:hover {
+        color: var(--text-secondary);
+        background: var(--bg-hover);
+      }
+
+      .expand-icon {
+        display: inline-block;
+        font-size: 0.75rem;
+        transition: transform var(--transition-fast);
+        
+        &.expanded {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  .sources-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .source-item {
+    .source-link {
+      display: block;
+      text-decoration: none;
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      transition: var(--transition-normal);
+      
+      &:hover {
+        border-color: var(--primary-color);
+        background: var(--bg-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+      }
+
+      &:focus {
+        @include focus-ring;
+      }
+    }
+
+    .source-info {
+      @include flex-between;
+      gap: var(--spacing-sm);
+    }
+
+    .source-title {
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      line-height: 1.4;
+      font-weight: 500;
+      flex: 1;
+      @include text-truncate;
+    }
+
+    .source-meta {
+      @include flex-end;
+      gap: var(--spacing-xs);
+      flex-shrink: 0;
+    }
+
+    .source-score {
+      font-size: var(--font-size-xs);
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      
+      &.high {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+      }
+      
+      &.medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
+      }
+      
+      &.low {
+        background: rgba(107, 114, 128, 0.1);
+        color: var(--text-muted);
+      }
+    }
+
+    .source-indicator {
+      color: var(--text-muted);
+      font-size: var(--font-size-xs);
+    }
+  }
+
+  .show-more-button {
+    @include button-ghost;
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--primary-color);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+
+    &:hover {
+      border-color: var(--primary-color);
+      background: rgba(59, 130, 246, 0.05);
+    }
+  }
+
+  // Mobile responsiveness
+  @include respond-below(md) {
+    .source-item {
+      .source-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+      }
+
+      .source-meta {
+        align-self: flex-end;
+      }
+    }
+  }
+
+  @include respond-below(sm) {
+    .source-item .source-link {
+      padding: var(--spacing-xs) var(--spacing-sm);
+    }
+
+    .sources-header .sources-title {
+      font-size: var(--font-size-xs);
+    }
+  }
+
+  // Animation for expanding sources
+  .sources-content {
+    overflow: hidden;
+    transition: max-height var(--transition-slow) ease;
+  }
+
+  // Dark theme adjustments
+  [data-theme="dark"] & {
+    .source-item .source-link {
+      background: var(--bg-secondary);
+      
+      &:hover {
+        background: var(--bg-hover);
+      }
+    }
+
+    .source-score {
+      &.high {
+        background: rgba(16, 185, 129, 0.2);
+      }
+      
+      &.medium {
+        background: rgba(245, 158, 11, 0.2);
+      }
+      
+      &.low {
+        background: rgba(107, 114, 128, 0.2);
+      }
+    }
+  }
+}
