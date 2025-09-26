@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { searchNews } from "../services/newsService.js";
 import { generateAIResponse, generateAIResponseStream } from '../services/aiService.js';
-import { saveMessage, getChatHistory, clearChatHistory } from '../services/redisService.js';
+import { saveMessage, getChatHistory, clearChatHistory, cleanupSession } from '../services/redisService.js';
 
 // Create new session 
 export const createSession = (req, res) => {
@@ -213,6 +213,7 @@ export const getHistory = async (req, res) => {
     console.log(`📚 Fetching history for session: ${sessionId}`);
     const history = await getChatHistory(sessionId);
     res.json({ history });
+    console.log(history)
     
   } catch (error) {
     console.error("❌ Get history error:", error.message);
@@ -234,6 +235,29 @@ export const clearHistory = async (req, res) => {
     
   } catch (error) {
     console.error("❌ Clear history error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Cleanup corrupted chat session
+export const cleanupChatSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required" });
+    }
+    
+    console.log(`🧹 Cleaning up corrupted session: ${sessionId}`);
+    const recoveredMessages = await cleanupSession(sessionId);
+    
+    res.json({ 
+      message: "Session cleanup completed successfully",
+      recoveredMessages: recoveredMessages.length,
+      messages: recoveredMessages
+    });
+    
+  } catch (error) {
+    console.error("❌ Cleanup session error:", error.message);
     res.status(500).json({ error: error.message });
   }
 };
