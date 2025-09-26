@@ -1,21 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSession, useChatStream } from '@/hooks';
+import { useChatStream } from '@/hooks';
 import { chatApi } from '@/api';
 import { SessionControls, MessageBubble, MessageInput, Loader } from '@/components';
 import './ChatWindow.scss';
 
-const ChatWindow = () => {
+const ChatWindow = ({ sessionId, onSessionError, initialMessage }) => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasProcessedInitialMessage, setHasProcessedInitialMessage] = useState(false);
   const messagesEndRef = useRef(null);
-  
-  const { 
-    sessionId, 
-    isCreatingSession, 
-    sessionError, 
-    createSession, 
-    resetSession 
-  } = useSession();
   
   const { 
     isStreaming, 
@@ -24,20 +17,39 @@ const ChatWindow = () => {
     sendNormalMessage 
   } = useChatStream();
 
-
   // Auto scroll to bottom when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  // Load chat history when sessionId changes
+  useEffect(() => {
+    if (sessionId) {
+      handleLoadHistory();
+    }
+  }, [sessionId]);
+
+  // Handle initial message from landing page
+  useEffect(() => {
+    if (sessionId && initialMessage && !hasProcessedInitialMessage) {
+      setHasProcessedInitialMessage(true);
+      // Small delay to ensure session is ready
+      setTimeout(() => {
+        handleSendMessage(initialMessage, true);
+      }, 500);
+    }
+  }, [sessionId, initialMessage, hasProcessedInitialMessage]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleNewSession = async () => {
-    setMessages([]);
-    resetSession();
-    await createSession();
+  const handleNewSession = () => {
+    // This should trigger session creation at parent level
+    // Navigate to landing page or trigger new session creation
+    if (onSessionError) {
+      onSessionError('new_session_requested');
+    }
   };
 
   const handleClearHistory = async () => {
@@ -57,9 +69,18 @@ const ChatWindow = () => {
     try {
       setIsLoading(true);
       const response = await chatApi.getChatHistory(sessionId);
-      setMessages(response.history || []);
+      const history = response.history || [];
+      setMessages(history);
+      
+      // If there's history, don't process initial message
+      if (history.length > 0) {
+        setHasProcessedInitialMessage(true);
+      }
     } catch (error) {
       console.error('Failed to load history:', error);
+      if (onSessionError) {
+        onSessionError('history_load_failed');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +157,7 @@ const ChatWindow = () => {
             msg.id === botMessageId 
               ? { 
                   ...msg, 
-                  content:  `Sorry, I encountered an error. Please try again.`,
+                  content: `Sorry, I encountered an error. Please try again.`,
                   isError: true,
                   isStreaming: false 
                 }
@@ -180,30 +201,12 @@ const ChatWindow = () => {
     }
   };
 
-  // Show loading state while creating session
-  if (isCreatingSession) {
+  // Show loading state if no sessionId
+  if (!sessionId) {
     return (
       <div className="chat-window">
         <div className="chat-loading">
-          <Loader message="Creating new session..." />
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if session creation failed
-  if (sessionError) {
-    return (
-      <div className="chat-window">
-        <div className="chat-error">
-          <div className="error-content">
-            <span className="error-icon">⚠️</span>
-            <h3>Failed to create session</h3>
-            <p>{sessionError}</p>
-            <button onClick={createSession} className="retry-button">
-              Try Again
-            </button>
-          </div>
+          <Loader message="Initializing chat..." />
         </div>
       </div>
     );
@@ -220,7 +223,7 @@ const ChatWindow = () => {
       />
 
       <div className="messages-container">
-        {messages.length === 0 ? (
+        {messages.length === 0 && !initialMessage ? (
           <div className="welcome-message">
             <div className="welcome-content">
               <h2>🗞️ Welcome to News Chat!</h2>
@@ -272,10 +275,10 @@ const ChatWindow = () => {
         isStreaming={isStreaming}
       />
 
-      {(streamError || sessionError) && (
+      {streamError && (
         <div className="error-toast">
           <span className="toast-icon">⚠️</span>
-          <span>{streamError || sessionError}</span>
+          <span>{streamError}</span>
         </div>
       )}
     </div>
