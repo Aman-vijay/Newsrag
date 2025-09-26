@@ -1,0 +1,428 @@
+@@ .. @@
+ .message-bubble {
+   display: flex;
+   flex-direction: column;
+   margin-bottom: 1.5rem;
+   max-width: 80%;
+-  animation: messageSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
++  animation: messageSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+   @include respond-to(lg) {
+     max-width: 70%;
+   }
+
+   // User message styling
+   &.user {
+     align-self: flex-end;
+     align-items: flex-end;
+
+     .message-content {
+       background: var(--user-bubble);
+       color: var(--user-text);
+-      border-radius: 1.25rem 1.25rem 0.5rem 1.25rem;
++      border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-lg) var(--radius-2xl);
+       padding: 1rem 1.25rem;
+       box-shadow: var(--shadow-md);
+       position: relative;
+       backdrop-filter: blur(10px);
+-      border: 1px solid rgba(255, 255, 255, 0.2);
++      border: 1px solid rgba(255, 255, 255, 0.3);
++      transition: all var(--transition-normal);
++
++      &:hover {
++        transform: translateY(-1px);
++        box-shadow: var(--shadow-lg);
++      }
+
+       p {
+         margin: 0;
+         line-height: 1.5;
+         word-break: break-word;
+         font-weight: 500;
+       }
+
+       // Modern message tail
+       &::after {
+         content: '';
+         position: absolute;
+         bottom: 0;
+         right: -8px;
+         width: 0;
+         height: 0;
+         border: 8px solid transparent;
+         border-left: 8px solid var(--primary-color);
+         border-bottom: none;
+         border-right: none;
+-        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
++        filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.15));
+       }
+     }
+
+     .message-timestamp {
+       color: var(--text-muted);
+       margin-top: 0.5rem;
+       margin-right: 0.5rem;
+       font-size: 0.75rem;
+       font-weight: 500;
+     }
+   }
+
+   // Bot message styling
+   &.bot {
+     align-self: flex-start;
+     align-items: flex-start;
+
+     .message-content {
+       width: 100%;
+     }
+
+     .bot-content {
+       display: flex;
+       gap: 0.75rem;
+       align-items: flex-start;
+     }
+
+     .bot-avatar {
+       flex-shrink: 0;
+       width: 44px;
+       height: 44px;
+       background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+       border-radius: 50%;
+       @include flex-center;
+       margin-top: 2px;
+       box-shadow: var(--shadow-md);
+-      border: 2px solid rgba(255, 255, 255, 0.9);
++      border: 2px solid var(--bg-primary);
++      transition: all var(--transition-normal);
++      position: relative;
++      overflow: hidden;
++
++      &::before {
++        content: '';
++        position: absolute;
++        top: -50%;
++        left: -50%;
++        width: 200%;
++        height: 200%;
++        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
++        transform: rotate(45deg);
++        transition: transform var(--transition-slow);
++      }
++
++      &:hover {
++        transform: scale(1.05);
++        box-shadow: var(--shadow-lg);
++
++        &::before {
++          transform: rotate(45deg) translate(50%, 50%);
++        }
++      }
+
+       .avatar-emoji {
+         font-size: 1.25rem;
+         filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
++        position: relative;
++        z-index: 1;
+       }
+     }
+
+     .bot-message-wrapper {
+       flex: 1;
+       background: var(--bot-bubble);
+       border: 1px solid var(--bot-bubble-border);
+-      border-radius: 1.25rem 1.25rem 1.25rem 0.5rem;
++      border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-2xl) var(--radius-lg);
+       padding: 1rem 1.25rem;
+       box-shadow: var(--shadow-md);
+       position: relative;
+       backdrop-filter: blur(10px);
++      transition: all var(--transition-normal);
++
++      &:hover {
++        transform: translateY(-1px);
++        box-shadow: var(--shadow-lg);
++      }
+
+       // Modern message tail for bot
+       &::before {
+         content: '';
+         position: absolute;
+         bottom: 8px;
+         left: -8px;
+         width: 0;
+         height: 0;
+         border: 8px solid transparent;
+         border-right: 8px solid var(--bot-bubble-border);
+         border-bottom: none;
+         border-left: none;
+       }
+
+       &::after {
+         content: '';
+         position: absolute;
+         bottom: 8px;
+         left: -7px;
+         width: 0;
+         height: 0;
+         border: 8px solid transparent;
+         border-right: 8px solid var(--bot-bubble);
+         border-bottom: none;
+         border-left: none;
+       }
+     }
+
+     .bot-text {
+       line-height: 1.6;
+       color: var(--bot-text);
+       word-break: break-word;
+       white-space: pre-wrap;
+       margin-bottom: 1rem;
+       font-size: 0.95rem;
+
+       &:last-child {
+         margin-bottom: 0;
+       }
+
+       .streaming-cursor {
+         display: inline-block;
+         background: var(--primary-color);
+         animation: blink 1s infinite;
+         margin-left: 2px;
+         width: 2px;
+         height: 1rem;
+         border-radius: 1px;
++        box-shadow: 0 0 4px var(--primary-color);
+       }
+
+       .error-message {
+         @include flex-start;
+         gap: 0.5rem;
+         color: var(--danger-color);
+         font-weight: 500;
+         background: var(--danger-light);
+         padding: 0.75rem;
+-        border-radius: 0.5rem;
++        border-radius: var(--radius-lg);
+         border: 1px solid rgba(220, 38, 38, 0.2);
++        animation: shake 0.5s ease-in-out;
+
+         .error-icon {
+           font-size: 1.125rem;
++          animation: bounce 0.6s ease-in-out;
+         }
+       }
+     }
+
+     .message-timestamp {
+       color: var(--text-muted);
+       margin-top: var(--spacing-xs);
+       margin-left: 54px; // Avatar width + gap
+     }
+   }
+
+   &.error {
+     .bot-message-wrapper {
+       border-color: var(--danger-color);
+-      background: rgba(239, 68, 68, 0.05);
++      background: var(--danger-light);
++      animation: shake 0.5s ease-in-out;
+     }
+   }
+
+   &.streaming {
+     .bot-message-wrapper {
+       border-color: var(--primary-color);
+-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
++      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), var(--shadow-md);
++      animation: pulse 2s infinite;
+     }
+   }
+
+   .message-timestamp {
+     font-size: var(--font-size-xs);
+     opacity: 0.7;
+     margin-top: var(--spacing-xs);
++    transition: opacity var(--transition-fast);
++
++    &:hover {
++      opacity: 1;
++    }
+   }
+
+-  // Animations
+-  @keyframes slideIn {
+-    from {
+-      opacity: 0;
+-      transform: translateY(10px);
+-    }
+-    to {
+-      opacity: 1;
+-      transform: translateY(0);
+-    }
+-  }
+-
+-  @keyframes blink {
+-    0%, 50% {
+-      opacity: 1;
+-    }
+-    51%, 100% {
+-      opacity: 0;
+-    }
+-  }
+-
+   // Mobile responsiveness
+   @include respond-below(md) {
+     max-width: 95%;
+
+     &.user .message-content,
+     &.bot .bot-message-wrapper {
+       padding: var(--spacing-sm) var(--spacing-md);
+     }
+
+     &.bot {
+       .bot-avatar {
+         width: 32px;
+         height: 32px;
+         
+         .avatar-emoji {
+           font-size: 1rem;
+         }
+       }
+
+       .message-timestamp {
+         margin-left: 46px; // Adjusted for smaller avatar
+       }
+     }
+   }
+
+   @include respond-below(sm) {
+     &.user .message-content,
+     &.bot .bot-message-wrapper {
+       font-size: var(--font-size-sm);
+     }
+   }
++
++  // Dark theme adjustments
++  [data-theme="dark"] & {
++    &.bot {
++      .bot-avatar {
++        border-color: var(--bg-primary);
++      }
++
++      .bot-message-wrapper {
++        background: var(--bot-bubble);
++        border-color: var(--bot-bubble-border);
++
++        &::after {
++          border-right-color: var(--bot-bubble);
++        }
++      }
++    }
++
++    &.error .bot-message-wrapper {
++      background: var(--danger-light);
++    }
++  }
+ }
+
+ // Animations
+ @keyframes messageSlideIn {
+   from {
+     opacity: 0;
+-    transform: translateY(20px) scale(0.95);
++    transform: translateY(30px) scale(0.9);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0) scale(1);
+   }
+ }
+
+ @keyframes blink {
+   0%, 50% {
+     opacity: 1;
+   }
+   51%, 100% {
+     opacity: 0;
+   }
+ }
+
++@keyframes shake {
++  0%, 100% {
++    transform: translateX(0);
++  }
++  25% {
++    transform: translateX(-2px);
++  }
++  75% {
++    transform: translateX(2px);
++  }
++}
++
++@keyframes bounce {
++  0%, 20%, 50%, 80%, 100% {
++    transform: translateY(0);
++  }
++  40% {
++    transform: translateY(-4px);
++  }
++  60% {
++    transform: translateY(-2px);
++  }
++}
++
++@keyframes pulse {
++  0%, 100% {
++    opacity: 1;
++  }
++  50% {
++    opacity: 0.8;
++  }
++}
++
++// Reduced motion preference
++@media (prefers-reduced-motion: reduce) {
++  .message-bubble {
++    animation: none;
++
++    &.error .bot-message-wrapper {
++      animation: none;
++    }
++
++    &.streaming .bot-message-wrapper {
++      animation: none;
++    }
++
++    .bot-text {
++      .streaming-cursor {
++        animation: none;
++        opacity: 0.7;
++      }
++
++      .error-message {
++        animation: none;
++
++        .error-icon {
++          animation: none;
++        }
++      }
++    }
++
++    .bot-avatar {
++      &:hover {
++        transform: none;
++
++        &::before {
++          transform: none;
++        }
++      }
++    }
++
++    .message-content,
++    .bot-message-wrapper {
++      &:hover {
++        transform: none;
++      }
++    }
++  }
++}
